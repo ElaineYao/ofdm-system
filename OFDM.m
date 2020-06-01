@@ -1,100 +1,100 @@
 clc;
 clear;
 
-%% ²ÎÊıÉèÖÃ
+%% å‚æ•°è®¾ç½®
 
-N_sc=128;      %ÏµÍ³×ÓÔØ²¨Êı£¨²»°üÀ¨Ö±Á÷ÔØ²¨£©¡¢number of subcarrierA
-N_fft=128;            % FFT ³¤¶È
-N_cp=8;             % Ñ­»·Ç°×º³¤¶È¡¢Cyclic prefix
-N_symbo=N_fft+N_cp;        % 1¸öÍêÕûOFDM·ûºÅ³¤¶È
-%N_c=53;             % °üº¬Ö±Á÷ÔØ²¨µÄ×ÜµÄ×ÓÔØ²¨Êı¡¢number of carriers
-M=4;               %4PSKµ÷ÖÆ  ¸Ä³É16qam
-SNR=0:5:30;         %·ÂÕæĞÅÔë±È
-N_frm=1;           %·ÂÕæÊ± ·ÂÕæÖ¡Êı
-%N_frm=53;            % Ã¿ÖÖĞÅÔë±ÈÏÂµÄ·ÂÕæÖ¡Êı¡¢frame
-%Nd=19040;               % Ã¿Ö¡°üº¬µÄbitsÊı
-Nd=N_symbo*2;               % Ã¿Ö¡°üº¬µÄbitsÊı
-sample_rate = 1.92e6; %²ÉÑùÂÊ
-P_t_inter=32;      %Ê±Óòµ¼Æµ¼ä¸ô
-P_f_inter=16;      %ÆµÓòµ¼Æµ¼ä¸ô
-data_station=[];    %µ¼ÆµÎ»ÖÃ
-L=7;                %¾í»ıÂëÔ¼Êø³¤¶È
-tblen=6*L;          %ViterbiÒëÂëÆ÷»ØËİÉî¶È
-stage = 3;          % mĞòÁĞµÄ½×Êı
-ptap1 = [1 3];      % mĞòÁĞµÄ¼Ä´æÆ÷Á¬½Ó·½Ê½
-regi1 = [1 1 1];    % mĞòÁĞµÄ¼Ä´æÆ÷³õÊ¼Öµ
-N = Nd*N_frm;       %Ê±ÓòbitÊı
+N_sc=128;      %ç³»ç»Ÿå­è½½æ³¢æ•°ï¼ˆä¸åŒ…æ‹¬ç›´æµè½½æ³¢ï¼‰ã€number of subcarrierA
+N_fft=128;            % FFT é•¿åº¦
+N_cp=8;             % å¾ªç¯å‰ç¼€é•¿åº¦ã€Cyclic prefix
+N_symbo=N_fft+N_cp;        % 1ä¸ªå®Œæ•´OFDMç¬¦å·é•¿åº¦
+%N_c=53;             % åŒ…å«ç›´æµè½½æ³¢çš„æ€»çš„å­è½½æ³¢æ•°ã€number of carriers
+M=4;               %4PSKè°ƒåˆ¶  æ”¹æˆ16qam
+SNR=0:5:30;         %ä»¿çœŸä¿¡å™ªæ¯”
+N_frm=1;           %ä»¿çœŸæ—¶ ä»¿çœŸå¸§æ•°
+%N_frm=53;            % æ¯ç§ä¿¡å™ªæ¯”ä¸‹çš„ä»¿çœŸå¸§æ•°ã€frame
+%Nd=19040;               % æ¯å¸§åŒ…å«çš„bitsæ•°
+Nd=N_symbo*2;               % æ¯å¸§åŒ…å«çš„bitsæ•°
+sample_rate = 1.92e6; %é‡‡æ ·ç‡
+P_t_inter=32;      %æ—¶åŸŸå¯¼é¢‘é—´éš”
+P_f_inter=16;      %é¢‘åŸŸå¯¼é¢‘é—´éš”
+data_station=[];    %å¯¼é¢‘ä½ç½®
+L=7;                %å·ç§¯ç çº¦æŸé•¿åº¦
+tblen=6*L;          %Viterbiè¯‘ç å™¨å›æº¯æ·±åº¦
+stage = 3;          % måºåˆ—çš„é˜¶æ•°
+ptap1 = [1 3];      % måºåˆ—çš„å¯„å­˜å™¨è¿æ¥æ–¹å¼
+regi1 = [1 1 1];    % måºåˆ—çš„å¯„å­˜å™¨åˆå§‹å€¼
+N = Nd*N_frm;       %æ—¶åŸŸbitæ•°
 
-%% »ù´øÊı¾İÊı¾İ²úÉú
+%% åŸºå¸¦æ•°æ®æ•°æ®äº§ç”Ÿ
 P_data=randi([0 1],1,N_sc*Nd*N_frm);
 
 
-%% ĞÅµÀ±àÂë£¨¾í»ıÂë¡¢»ò½»Ö¯Æ÷£©
-%¾í»ıÂë£ºÇ°Ïò¾À´í·ÇÏßĞÔÂë
-%½»Ö¯£ºÊ¹Í»·¢´íÎó×î´óÏŞ¶ÈµÄ·ÖÉ¢»¯
-trellis = poly2trellis(7,[133 171]);       %(2,1,7)¾í»ı±àÂë
+%% ä¿¡é“ç¼–ç ï¼ˆå·ç§¯ç ã€æˆ–äº¤ç»‡å™¨ï¼‰
+%å·ç§¯ç ï¼šå‰å‘çº é”™éçº¿æ€§ç 
+%äº¤ç»‡ï¼šä½¿çªå‘é”™è¯¯æœ€å¤§é™åº¦çš„åˆ†æ•£åŒ–
+trellis = poly2trellis(7,[133 171]);       %(2,1,7)å·ç§¯ç¼–ç 
 code_data=convenc(P_data,trellis);
 
 
-%% qpskµ÷ÖÆ
-data_temp1= reshape(code_data,log2(M),[])';             %ÒÔÃ¿×é2±ÈÌØ½øĞĞ·Ö×é£¬M=4
-data_temp2= bi2de(data_temp1);                             %¶ş½øÖÆ×ª»¯ÎªÊ®½øÖÆ
-modu_data=pskmod(data_temp2,M,pi/M);              % 4PSKµ÷ÖÆ
+%% qpskè°ƒåˆ¶
+data_temp1= reshape(code_data,log2(M),[])';             %ä»¥æ¯ç»„2æ¯”ç‰¹è¿›è¡Œåˆ†ç»„ï¼ŒM=4
+data_temp2= bi2de(data_temp1);                             %äºŒè¿›åˆ¶è½¬åŒ–ä¸ºåè¿›åˆ¶
+modu_data=pskmod(data_temp2,M,pi/M);              % 4PSKè°ƒåˆ¶
 % figure(1);
-scatterplot(modu_data),grid;                  %ĞÇ×ùÍ¼(Ò²¿ÉÒÔÈ¡Êµ²¿ÓÃplotº¯Êı)
+scatterplot(modu_data),grid;                  %æ˜Ÿåº§å›¾(ä¹Ÿå¯ä»¥å–å®éƒ¨ç”¨plotå‡½æ•°)
 
-%% À©Æµ
-%¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª%
-%À©ÆµÍ¨ĞÅĞÅºÅËùÕ¼ÓĞµÄÆµ´ø¿í¶ÈÔ¶´óÓÚËù´«ĞÅÏ¢±ØĞèµÄ×îĞ¡´ø¿í
-%¸ù¾İÏãÅ©¶¨Àí£¬À©ÆµÍ¨ĞÅ¾ÍÊÇÓÃ¿í´ø´«Êä¼¼ÊõÀ´»»È¡ĞÅÔë±ÈÉÏµÄºÃ´¦£¬Õâ¾ÍÊÇÀ©ÆµÍ¨ĞÅµÄ»ù±¾Ë¼ÏëºÍÀíÂÛÒÀ¾İ¡£
-%À©Æµ¾ÍÊÇ½«Ò»ÏµÁĞÕı½»µÄÂë×ÖÓë»ù´øµ÷ÖÆĞÅºÅÄÚ»ı
-%À©ÆµºóÊı×ÖÆµÂÊ±ä³ÉÁËÔ­À´µÄm±¶¡£ÂëÆ¬ÊıÁ¿ = 2£¨·ûºÅÊı£©* m£¨À©ÆµÏµÊı£©
-%¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª%
+%% æ‰©é¢‘
+%â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”%
+%æ‰©é¢‘é€šä¿¡ä¿¡å·æ‰€å æœ‰çš„é¢‘å¸¦å®½åº¦è¿œå¤§äºæ‰€ä¼ ä¿¡æ¯å¿…éœ€çš„æœ€å°å¸¦å®½
+%æ ¹æ®é¦™å†œå®šç†ï¼Œæ‰©é¢‘é€šä¿¡å°±æ˜¯ç”¨å®½å¸¦ä¼ è¾“æŠ€æœ¯æ¥æ¢å–ä¿¡å™ªæ¯”ä¸Šçš„å¥½å¤„ï¼Œè¿™å°±æ˜¯æ‰©é¢‘é€šä¿¡çš„åŸºæœ¬æ€æƒ³å’Œç†è®ºä¾æ®ã€‚
+%æ‰©é¢‘å°±æ˜¯å°†ä¸€ç³»åˆ—æ­£äº¤çš„ç å­—ä¸åŸºå¸¦è°ƒåˆ¶ä¿¡å·å†…ç§¯
+%æ‰©é¢‘åæ•°å­—é¢‘ç‡å˜æˆäº†åŸæ¥çš„må€ã€‚ç ç‰‡æ•°é‡ = 2ï¼ˆç¬¦å·æ•°ï¼‰* mï¼ˆæ‰©é¢‘ç³»æ•°ï¼‰
+%â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”%
 
-code = mseq(stage,ptap1,regi1,N_sc);     % À©ÆµÂëµÄÉú³É
-code = code * 2 - 1;         %½«1¡¢0±ä»»Îª1¡¢-1
+code = mseq(stage,ptap1,regi1,N_sc);     % æ‰©é¢‘ç çš„ç”Ÿæˆ
+code = code * 2 - 1;         %å°†1ã€0å˜æ¢ä¸º1ã€-1
 modu_data=reshape(modu_data,N_sc,length(modu_data)/N_sc);
-spread_data = spread(modu_data,code);        % À©Æµ
+spread_data = spread(modu_data,code);        % æ‰©é¢‘
 spread_data=reshape(spread_data,[],1);
 
-%% ²åÈëµ¼Æµ
+%% æ’å…¥å¯¼é¢‘
 P_f=3+3*1i;                       %Pilot frequency
-P_f_station=[1:P_f_inter:N_fft];%µ¼ÆµÎ»ÖÃ£¨µ¼ÆµÎ»ÖÃºÜÖØÒª£¬why?£©
-pilot_num=length(P_f_station);%µ¼ÆµÊıÁ¿
+P_f_station=[1:P_f_inter:N_fft];%å¯¼é¢‘ä½ç½®ï¼ˆå¯¼é¢‘ä½ç½®å¾ˆé‡è¦ï¼Œwhy?ï¼‰
+pilot_num=length(P_f_station);%å¯¼é¢‘æ•°é‡
 
-for img=1:N_fft                        %Êı¾İÎ»ÖÃ
-    if mod(img,P_f_inter)~=1          %mod(a,b)¾ÍÊÇÇóµÄÊÇa³ıÒÔbµÄÓàÊı
+for img=1:N_fft                        %æ•°æ®ä½ç½®
+    if mod(img,P_f_inter)~=1          %mod(a,b)å°±æ˜¯æ±‚çš„æ˜¯aé™¤ä»¥bçš„ä½™æ•°
         data_station=[data_station,img];
     end
 end
 data_row=length(data_station);
 data_col=ceil(length(spread_data)/data_row);
 
-pilot_seq=ones(pilot_num,data_col)*P_f;%½«µ¼Æµ·ÅÈë¾ØÕó
-data=zeros(N_fft,data_col);%Ô¤ÉèÕû¸ö¾ØÕó
-data(P_f_station(1:end),:)=pilot_seq;%¶Ôpilot_seq°´ĞĞÈ¡
+pilot_seq=ones(pilot_num,data_col)*P_f;%å°†å¯¼é¢‘æ”¾å…¥çŸ©é˜µ
+data=zeros(N_fft,data_col);%é¢„è®¾æ•´ä¸ªçŸ©é˜µ
+data(P_f_station(1:end),:)=pilot_seq;%å¯¹pilot_seqæŒ‰è¡Œå–
 
 if data_row*data_col>length(spread_data)
-    data2=[spread_data;zeros(data_row*data_col-length(spread_data),1)];%½«Êı¾İ¾ØÕó²¹Æë£¬²¹0ÊÇĞéÔØÆµ~
+    data2=[spread_data;zeros(data_row*data_col-length(spread_data),1)];%å°†æ•°æ®çŸ©é˜µè¡¥é½ï¼Œè¡¥0æ˜¯è™šè½½é¢‘~
 end;data
 
 
 
-%% ´®²¢×ª»»
+%% ä¸²å¹¶è½¬æ¢
 data_seq=reshape(data2,data_row,data_col);
-data(data_station(1:end),:)=data_seq;%½«µ¼ÆµÓëÊı¾İºÏ²¢
+data(data_station(1:end),:)=data_seq;%å°†å¯¼é¢‘ä¸æ•°æ®åˆå¹¶
 
 %% IFFT
 ifft_data=ifft(data)*sqrt(N_fft); 
 
-%% ²åÈë±£»¤¼ä¸ô¡¢Ñ­»·Ç°×º
-Tx_cd=[ifft_data(N_fft-N_cp+1:end,:);ifft_data];%°ÑifftµÄÄ©Î²N_cp¸öÊı²¹³äµ½×îÇ°Ãæ
+%% æ’å…¥ä¿æŠ¤é—´éš”ã€å¾ªç¯å‰ç¼€
+Tx_cd=[ifft_data(N_fft-N_cp+1:end,:);ifft_data];%æŠŠifftçš„æœ«å°¾N_cpä¸ªæ•°è¡¥å……åˆ°æœ€å‰é¢
 
-%% ²¢´®×ª»»
-Tx_data=reshape(Tx_cd,[],1);%ÓÉÓÚ´«ÊäĞèÒª
+%% å¹¶ä¸²è½¬æ¢
+Tx_data=reshape(Tx_cd,[],1);%ç”±äºä¼ è¾“éœ€è¦
 
-%% ĞÅµÀ£¨Í¨¹ı¶à¾­ÈğÀûĞÅµÀ+AWGNĞÅµÀ£©
-% %µ¥¾¶ĞÅµÀ
+%% ä¿¡é“ï¼ˆé€šè¿‡å¤šç»ç‘åˆ©ä¿¡é“+AWGNä¿¡é“ï¼‰
+% %å•å¾„ä¿¡é“
 % RayleighSinglePath = comm.RayleighChannel(...
 %     'SampleRate',sample_rate, ...                  
 %     'MaximumDopplerShift',1, ...
@@ -102,17 +102,17 @@ Tx_data=reshape(Tx_cd,[],1);%ÓÉÓÚ´«ÊäĞèÒª
 %     'PathGainsOutputPort',true);
 %     %'Visualization','Impulse and frequency responses');
 %     
-%     [n1,h_pathGains]=RayleighSinglePath(Tx_data);%¾­¹ıµ¥¾¶ĞÅµÀ
+%     [n1,h_pathGains]=RayleighSinglePath(Tx_data);%ç»è¿‡å•å¾„ä¿¡é“
 % %     Rx_data11=reshape(n1,N_fft+N_cp,[]);
 % %     Rx_data21=Rx_data11(N_cp+1:end,:);
 % %     fft_data1=fft(Rx_data21)/sqrt(N_fft);
-% %     %×¼È·ĞÅµÀ
+% %     %å‡†ç¡®ä¿¡é“
 % %     H_real=fft_data1./data;
     
 % 'PathDelays',[0 30 150 310 370 710 1090 1730 2510]*1e-9, ...
 %     'AveragePathGains',[0.0 -1.5 -1.4 -3.6 -0.6 -9.1 -7.0 -12.0 -16.9], ...
 
-%¶à¾¶ĞÅµÀ
+%å¤šå¾„ä¿¡é“
  RayleighMultiPath =comm.RayleighChannel(...
     'SampleRate',sample_rate, ...
     'PathDelays',[0 30 150 310 370 710 1090 1730 2510]*1e-9, ...
@@ -124,16 +124,16 @@ Tx_data=reshape(Tx_cd,[],1);%ÓÉÓÚ´«ÊäĞèÒª
     'Seed',22, ...
     'PathGainsOutputPort',true);
    % Tx_data = randi([0,1],1,30);
-    [n1,h_pathGains]=RayleighMultiPath(Tx_data);%¾­¹ı¶à¾¶ĞÅµÀºÍ¶àÆÕÀÕÆµÒÆ
+    [n1,h_pathGains]=RayleighMultiPath(Tx_data);%ç»è¿‡å¤šå¾„ä¿¡é“å’Œå¤šæ™®å‹’é¢‘ç§»
    %[n1,h_pathGains]=RayleighMultiPath(Tx_data');
 %     Rx_data11=reshape(n1,N_fft+N_cp,[]);
 %     Rx_data21=Rx_data11(N_cp+1:end,:);
 %     fft_data1=fft(Rx_data21)/sqrt(N_fft);
-%     %²»×¼È·ĞÅµÀ
+%     %ä¸å‡†ç¡®ä¿¡é“
 %     H_real=fft_data1./data;
  
  
- %×¼È·ĞÅµÀ(¶à¾¶)
+ %å‡†ç¡®ä¿¡é“(å¤šå¾„)
 %PathDelays=[0 4]/sample_rate;
  PathDelays=[0 30 150 310 370 710 1090 1730 2510]*1e-9;
  %PathDelays=[0];
@@ -149,55 +149,58 @@ Tx_data=reshape(Tx_cd,[],1);%ÓÉÓÚ´«ÊäĞèÒª
      H_real = H_real+h_i.*exp((-2*pi*1i)*k*t_i*sample_rate/N_fft);
  end
  
- %¸ßË¹ĞÅµÀ
+ %é«˜æ–¯ä¿¡é“
  S = RandStream('mt19937ar','Seed',5489);
  Ber=zeros(1,length(SNR));
  Ber2=zeros(1,length(SNR));
 for jj=1:length(SNR)
-    rx_channel=awgn(n1,SNR(jj),'measured',S);%Ìí¼Ó¸ßË¹°×ÔëÉù
+    rx_channel=awgn(n1,SNR(jj),'measured',S);%æ·»åŠ é«˜æ–¯ç™½å™ªå£°
 
-%% ´®²¢×ª»»
-    Rx_data1=reshape(rx_channel,N_fft+N_cp,[]);
+%% ä¸²å¹¶è½¬æ¢
+    %èˆå»ä¿¡é“å»¶æ—¶ï¼Œåœ¨çŸ©é˜µåé¢è¡¥é›¶
+      rx_channel_dp = rx_channel(8:end);
+      rx_channel_b0 = [rx_channel_dp;zeros(7,1)];
+    Rx_data1=reshape(rx_channel_b0,N_fft+N_cp,[]);
     
-%% È¥µô±£»¤¼ä¸ô¡¢Ñ­»·Ç°×º
+%% å»æ‰ä¿æŠ¤é—´éš”ã€å¾ªç¯å‰ç¼€
     Rx_data2=Rx_data1(N_cp+1:end,:);
 %% FFT
     fft_data=fft(Rx_data2)/sqrt(N_fft);
     
-%% ĞÅµÀ¹À¼ÆÓë²åÖµ£¨¾ùºâ£©
+%% ä¿¡é“ä¼°è®¡ä¸æ’å€¼ï¼ˆå‡è¡¡ï¼‰
 
     data3=fft_data(1:N_fft,:); 
-    Rx_pilot=data3(P_f_station(1:end),:); %½ÓÊÕµ½µÄµ¼Æµ
+    Rx_pilot=data3(P_f_station(1:end),:); %æ¥æ”¶åˆ°çš„å¯¼é¢‘
     h=Rx_pilot./pilot_seq; 
-    H=interp1( P_f_station(1:end)',h,data_station(1:end)','linear','extrap');%·Ö¶ÎÏßĞÔ²åÖµ£º²åÖµµã´¦º¯ÊıÖµÓÉÁ¬½ÓÆä×îÁÚ½üµÄÁ½²àµãµÄÏßĞÔº¯ÊıÔ¤²â¡£¶Ô³¬³öÒÑÖªµã¼¯µÄ²åÖµµãÓÃÖ¸¶¨²åÖµ·½·¨¼ÆËãº¯ÊıÖµ
+    H=interp1( P_f_station(1:end)',h,data_station(1:end)','linear','extrap');%åˆ†æ®µçº¿æ€§æ’å€¼ï¼šæ’å€¼ç‚¹å¤„å‡½æ•°å€¼ç”±è¿æ¥å…¶æœ€é‚»è¿‘çš„ä¸¤ä¾§ç‚¹çš„çº¿æ€§å‡½æ•°é¢„æµ‹ã€‚å¯¹è¶…å‡ºå·²çŸ¥ç‚¹é›†çš„æ’å€¼ç‚¹ç”¨æŒ‡å®šæ’å€¼æ–¹æ³•è®¡ç®—å‡½æ•°å€¼
     
     ERRA=abs((h-H_real(P_f_station(1:end),:))./H_real(P_f_station(1:end),:));
     MSEA(jj)=sum(sum(ERRA.^2))/(length(P_f_station)*data_col);
     
-%% ĞÅµÀĞ£Õı
+%% ä¿¡é“æ ¡æ­£
     data_aftereq=data3(data_station(1:end),:)./H;
-%% ²¢´®×ª»»
+%% å¹¶ä¸²è½¬æ¢
     data_aftereq=reshape(data_aftereq,[],1);
     data_aftereq=data_aftereq(1:length(spread_data));
     data_aftereq=reshape(data_aftereq,N_sc,length(data_aftereq)/N_sc);
     
-%% ½âÀ©
-    demspread_data = despread(data_aftereq,code);       % Êı¾İ½âÀ©
+%% è§£æ‰©
+    demspread_data = despread(data_aftereq,code);       % æ•°æ®è§£æ‰©
     
-%% QPSK½âµ÷
+%% QPSKè§£è°ƒ
     demodulation_data=pskdemod(demspread_data,M,pi/M);    
     De_data1 = reshape(demodulation_data,[],1);
     De_data2 = de2bi(De_data1);
     De_Bit = reshape(De_data2',1,[]);
 
-%% £¨½â½»Ö¯£©
-%% ĞÅµÀÒëÂë£¨Î¬ÌØ±ÈÒëÂë£©
+%% ï¼ˆè§£äº¤ç»‡ï¼‰
+%% ä¿¡é“è¯‘ç ï¼ˆç»´ç‰¹æ¯”è¯‘ç ï¼‰
     trellis = poly2trellis(7,[133 171]);
-    rx_c_de = vitdec(De_Bit,trellis,tblen,'trunc','hard');   %Ó²ÅĞ¾ö
+    rx_c_de = vitdec(De_Bit,trellis,tblen,'trunc','hard');   %ç¡¬åˆ¤å†³
 
-%% ¼ÆËãÎóÂëÂÊ
-    [err,Ber2(jj)] = biterr(De_Bit(1:length(code_data)),code_data);%ÒëÂëÇ°µÄÎóÂëÂÊ
-    [err, Ber(jj)] = biterr(rx_c_de(1:length(P_data)),P_data);%ÒëÂëºóµÄÎóÂëÂÊ
+%% è®¡ç®—è¯¯ç ç‡
+    [err,Ber2(jj)] = biterr(De_Bit(1:length(code_data)),code_data);%è¯‘ç å‰çš„è¯¯ç ç‡
+    [err, Ber(jj)] = biterr(rx_c_de(1:length(P_data)),P_data);%è¯‘ç åçš„è¯¯ç ç‡
 
 end
  figure(2);
@@ -205,25 +208,25 @@ end
  hold on;
  semilogy(SNR,Ber,'r-o');
  hold on;
- legend('4PSKµ÷ÖÆ¡¢¾í»ıÂëÒëÂëÇ°£¨ÓĞÀ©Æµ£©','4PSKµ÷ÖÆ¡¢¾í»ıÂëÒëÂëºó£¨ÓĞÀ©Æµ£©');
+ legend('4PSKè°ƒåˆ¶ã€å·ç§¯ç è¯‘ç å‰ï¼ˆæœ‰æ‰©é¢‘ï¼‰','4PSKè°ƒåˆ¶ã€å·ç§¯ç è¯‘ç åï¼ˆæœ‰æ‰©é¢‘ï¼‰');
  hold on;
  xlabel('SNR');
  ylabel('BER');
- title('AWGNĞÅµÀÏÂÎó±ÈÌØÂÊÇúÏß');
+ title('AWGNä¿¡é“ä¸‹è¯¯æ¯”ç‰¹ç‡æ›²çº¿');
 
  figure(3)
  subplot(2,1,1);
  x=0:1:30;
  stem(x,P_data(1:31));
  ylabel('amplitude');
- title('·¢ËÍÊı¾İ£¨ÒÔÇ°30¸öÊı¾İÎªÀı)');
- legend('4PSKµ÷ÖÆ¡¢¾í»ıÒëÂë¡¢ÓĞÀ©Æµ');
+ title('å‘é€æ•°æ®ï¼ˆä»¥å‰30ä¸ªæ•°æ®ä¸ºä¾‹)');
+ legend('4PSKè°ƒåˆ¶ã€å·ç§¯è¯‘ç ã€æœ‰æ‰©é¢‘');
 
  subplot(2,1,2);
  x=0:1:30;
  stem(x,rx_c_de(1:31));
  ylabel('amplitude');
- title('½ÓÊÕÊı¾İ(ÒÔÇ°30¸öÊı¾İÎªÀı)');
- legend('4PSKµ÷ÖÆ¡¢¾í»ıÒëÂë¡¢ÓĞÀ©Æµ');
+ title('æ¥æ”¶æ•°æ®(ä»¥å‰30ä¸ªæ•°æ®ä¸ºä¾‹)');
+ legend('4PSKè°ƒåˆ¶ã€å·ç§¯è¯‘ç ã€æœ‰æ‰©é¢‘');
  
  
